@@ -11,4 +11,4 @@ output:
 
 ## Project thoughts
 
-I am interested in exploring data related to how Democracy and Wealth a correlated.
+I am interested in exploring data related to how Democracy and Wealth a correlated. I would like to see how the two influence eachother, and which one might cause the other.
