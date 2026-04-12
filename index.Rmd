@@ -49,3 +49,31 @@ Zurich/Lueneburg/Lucerne: University of Zurich, Leuphana University Lueneburg, a
 ```
 ## Write up for graph
 The scatterplot shows a slight positive relationship between left-wing cabinet share and government spending, but the relationship is relatively weak and there is substantial variation across countries. This suggests that while left-wing participation may be associated with higher spending, other factors also play a significant role in shaping government expenditure.
+
+
+## Second Data Visualization
+
+```{r}
+cpds_within <- cpds |>
+  select(country, gov_left1, outlays) |>
+  drop_na(gov_left1, outlays) |>
+  group_by(country) |>
+  mutate(
+    avg_left_country = mean(gov_left1, na.rm = TRUE),
+    left_relative = if_else(gov_left1 > avg_left_country, "Above Avg", "Below Avg")
+  )
+
+ggplot(cpds_within, aes(x = left_relative, y = outlays)) +
+  geom_boxplot() +
+  labs(
+    title = "Government Spending When Countries Are More vs Less Left-Wing",
+    x = "Left-Wing Cabinet Share (Relative to Country Average)",
+    y = "Government Spending (% of GDP)",
+    caption = "Armingeon, Klaus, Sarah Engler, Lucas Leemann and David Weisstanner. 2025.
+Comparative Political Data Set 1960-2023.
+Zurich/Lueneburg/Lucerne: University of Zurich, Leuphana University Lueneburg, and University of Lucerne."
+  )
+```
+## Graph 2 Write up
+
+This graph compares each country to itself over time by splitting years into when it is more left-wing than its own average and when it is less. It shows that when countries are more left-wing than usual, they tend to spend a little more on average. However, there is still a lot of overlap between the two groups, so the effect is small and left-wing control alone does not explain most of the differences in government spending.
