@@ -34,13 +34,28 @@ library(haven)
 library(tidyverse)
 cpds <- read_dta("CPDS_1960-2023_Update_2025.dta")
 ```
-```{r, echo=FALSE}
 
+```{r, echo=FALSE}
 cpds_2015 <- cpds |>
   select(country, year, gov_left1, outlays) |>
   filter(year == 2015) |>
   drop_na(gov_left1, outlays)
-fig_1 <- ggplot(data = cpds_2015, aes(x = gov_left1, y = outlays)) +
+histo_outcome <- 
+  ggplot(cpds_2015, aes(x = outlays)) +
+  geom_histogram(binwidth = 2) +
+  labs(
+    x = "Government Spending (% of GDP)",
+    y = "Count",
+    title = "Distribution of Government Spending Across Countries (2015)"
+  )
+histo_outcome
+```
+Figure 1 shows the distribution of government spending across countries in 2015. Most countries fall within a middle range of around 35% to 50% of GDP, with fewer countries at the lower and higher ends. This suggests that while there is some variation in spending across countries, most democracies tend to have relatively similar levels of government spending.
+
+
+### Figure 2
+```{r, echo=FALSE}
+fig_2 <- ggplot(data = cpds_2015, aes(x = gov_left1, y = outlays)) +
   geom_point() +
   geom_smooth(method = "lm", se = TRUE) +
   labs(
@@ -51,9 +66,9 @@ fig_1 <- ggplot(data = cpds_2015, aes(x = gov_left1, y = outlays)) +
 Comparative Political Data Set 1960-2023.
 Zurich/Lueneburg/Lucerne: University of Zurich, Leuphana University Lueneburg, and University of Lucerne."
   )
-fig_1
+fig_2
 ```
-The scatter plot shows a positive relationship between left-wing cabinet share and government spending across countries in 2015, but the relationship is relatively weak and there is substantial variation across countries. This suggests that while left-wing participation may be associated with higher spending, other factors also play a significant role in shaping government expenditure.
+This scatter plot shows a positive relationship between left-wing cabinet share and government spending across countries in 2015, but the relationship is relatively weak and there is substantial variation across countries. This suggests that while left-wing participation may be associated with higher spending, other factors also play a significant role in shaping government expenditure.
 
 ### Regression
 ```{r, echo= FALSE}
@@ -71,7 +86,7 @@ reg_1 |>
 ```
 The results of the regression reinforce this pattern, showing a positive relationship between left-wing cabinet share and government spending, with a coefficient of 0.03. This result suggests that a one percentage point increase in left-wing cabinet share is associated with a 0.03 percentage point increase in government spending as a share of the GDP. However, the p-value of 0.32 indicates that the relationship is not statistically significant at our given levels. Due to these findings, there is not enough evidence to conclude that left wing- participation in government is meaningfully associated with higher levels of government spending in this cross-section. 
 
-### Figure 2
+### Figure 3
 ```{r,echo=FALSE}
 cpds_within <- cpds |>
   select(country, gov_left1, outlays) |>
@@ -107,5 +122,4 @@ Used to clean up wording and use technical terminology in write up.
 
 ### Code
 ```{r print-code, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
-
 ```
