@@ -1,41 +1,46 @@
 ---
-title: "PS270 Final Project"
+title: "Partisanship And Government Spending"
 author: "Clayton Elsbree"
-description: "My final project"
+description: "An exploration of the relationship between left-wing political representation and government spending across democratic countries."
 output:
   distill::distill_article:
     self_contained: false
 ---
 
+## Introduction
+In this project, I examine if greater representation of left-wing parties in government is associated with higher levels of government spending. The research question that will be explored is whether higher share of cabinet positions held by left-wing parties leads to increased government expenditures as a percentage of the GDP. My hypothesis is that as the share of left-winged cabinet participation increases, total government spending will also increase.
+
+This expectation is rooted in the idea that left-wing parties tend to represent lower-income constituencies and therefore support policies that have emphasis on redistribution of wealth and a larger welfare state. Understanding this relationship is important because it can help explain how political ideology may shape economic policy outcomes across democratic countries, especially in terms of government spending and the role of the state.
+
+## Data
+
+This project uses data from the Comparative Political Data Set (CPDS), which includes political and economic data for 36 democratic countries from 1960 to 2023. The unit of analysis is the country- year. However for the main analysis I focus on a cross-sectional subset of the data from 2015 in order to compare countries at a single point in time.
+
+The outcome variable used is government spending, measured as total government expenditures as a percentage of GDP marked as `outlays` in the data set. This captures the size of government in each country. The exploratory variable is the share of cabinet positions held by left-winged parties, shown as `gov_left1`, measured as the percentage of cabinet seats held by social democrats or other left leaning parties in a given country- year. This variable is different across countries and over time, which allows for meaningful comparisons.
+
+To evaluate my hypothesis, I examine whether higher values of left-wing cabinet spending have a association with higher levels of government spending. A positive relationship between these two variables would support the hypothesis, while a negative or null relationship would provide evidence against it.
 
 
-## Project thoughts
-
-I am interested in exploring data related to how Democracy and Wealth are correlated. I would like to see how the two influence each other, and which one might cause the other.
 
 
-## Loading Data 
 
-```{r}
+
+## Results
+
+### Figure 1
+
+```{r, echo=FALSE}
 library(haven)
-cpds <- read_dta("CPDS_1960-2023_Update_2025.dta")
-head(cpds)
-```
-
-
-## Proposal
-
-I will be using data from a comparative politics data set, which contains data from 1960- 2025 for 36 democratic countries. There is both political and economic data in this set. My research question is does more positions held by left-wing parties in government lead to higher levels of government spending? I hypothesize as the share of left-wing cabinet participants increase, total government spending as a percentage of GDP will also increase. This expectation is rooted in the theory that left-winged governments typically represent lower income constituencies and therefore favor policies that lead to redistribution and a larger welfare system. The explanatory variable of interest is gov_left_1, which shows the percentage of cabinet positions held by social democratic and other left sided parties in a given year in the given country. This variable is varies both across countries and over time, allowing for meaningful statistical comparisons to be made. The outcome variable is outlays, which tracks total government expenditures as a percentage of the GDP for the given year. If I observe a positive relationship between the two variables, this would support my hypothesis. However, if the relationship is neutral or negative this would provide evidence against the theory that left-winged governments produce higher levels of government spending.
-
-## Data visualization
-
-```{r}
 library(tidyverse)
+cpds <- read_dta("CPDS_1960-2023_Update_2025.dta")
+```
+```{r, echo=FALSE}
+
 cpds_2015 <- cpds |>
   select(country, year, gov_left1, outlays) |>
   filter(year == 2015) |>
   drop_na(gov_left1, outlays)
-ggplot(data = cpds_2015, aes(x = gov_left1, y = outlays)) +
+fig_1 <- ggplot(data = cpds_2015, aes(x = gov_left1, y = outlays)) +
   geom_point() +
   geom_smooth(method = "lm", se = TRUE) +
   labs(
@@ -46,14 +51,28 @@ ggplot(data = cpds_2015, aes(x = gov_left1, y = outlays)) +
 Comparative Political Data Set 1960-2023.
 Zurich/Lueneburg/Lucerne: University of Zurich, Leuphana University Lueneburg, and University of Lucerne."
   )
+fig_1
 ```
-## Write up for graph
-The scatterplot shows a slight positive relationship between left-wing cabinet share and government spending, but the relationship is relatively weak and there is substantial variation across countries. This suggests that while left-wing participation may be associated with higher spending, other factors also play a significant role in shaping government expenditure.
+The scatter plot shows a positive relationship between left-wing cabinet share and government spending across countries in 2015, but the relationship is relatively weak and there is substantial variation across countries. This suggests that while left-wing participation may be associated with higher spending, other factors also play a significant role in shaping government expenditure.
 
+### Regression
+```{r, echo= FALSE}
+reg_1 <- lm(outlays ~ gov_left1, data = cpds_2015)
 
-## Second Data Visualization
+library(broom)
+reg_1 |>
+  tidy() |>
+  dplyr::mutate(
+    term = if_else(term == "gov_left1",
+                  "Left-Wing Cabinet Share (%)",
+                  "Intercept")
+  ) |>
+  knitr::kable(col.names = c("Term", "Estimate", "Std. Error", "t-value", "p-value"),digits = 2)
+```
+The results of the regression reinforce this pattern, showing a positive relationship between left-wing cabinet share and government spending, with a coefficient of 0.03. This result suggests that a one percentage point increase in left-wing cabinet share is associated with a 0.03 percentage point increase in government spending as a share of the GDP. However, the p-value of 0.32 indicates that the relationship is not statistically significant at our given levels. Due to these findings, there is not enough evidence to conclude that left wing- participation in government is meaningfully associated with higher levels of government spending in this cross-section. 
 
-```{r}
+### Figure 2
+```{r,echo=FALSE}
 cpds_within <- cpds |>
   select(country, gov_left1, outlays) |>
   drop_na(gov_left1, outlays) |>
@@ -74,6 +93,19 @@ Comparative Political Data Set 1960-2023.
 Zurich/Lueneburg/Lucerne: University of Zurich, Leuphana University Lueneburg, and University of Lucerne."
   )
 ```
-## Graph 2 Write up
+The within-country comparison provides additional context. By comparing each country to its own average level of left-wing representation over time, the boxplot shows that government spending tends to be slightly higher in years when countries are more left-wing than usual. However, there is considerable overlap between the distributions, suggesting that the effect is small and that changes in left-wing representation alone do not explain most variation in spending.
 
-This graph compares each country to itself over time by splitting years into when it is more left-wing than its own average and when it is less. It shows that when countries are more left-wing than usual, they tend to spend a little more on average. However, there is still a lot of overlap between the two groups, so the effect is small and left-wing control alone does not explain most of the differences in government spending.
+### Synopsis of results
+Overall, these results suggest that while there may be a weak positive association between left-wing representation and government spending, the relationship is weak, not statistically significant, and should not be interpreted as causal. Other factors, such as economic conditions or institutional differences, could be important in shaping government spending levels.
+
+## Conclusion
+After reviewing the data, the results provide weak support for my hypothesis. Both the scatterplot and box plot show a slight positive relationship between left-wing cabinet participation and government spending. The regression coefficient is small and not statistically significant. These findings together mean that while the direction of the relationship is as expected, there is not ample evidence to conclude that left-wing representation is meaningfully associated with higher government spending in the 2015 cross-section. A major limitation of this analysis is that it does not account for possible confounding factors. Examples of these include economic conditions, population age, institutional differences or a existing welfare state size. There is also an issue of reverse causality, since countries with larger welfare states may be more likely to elect left-wing governments rather then left-wing governments causing higher spending. If I had more time and resources, I would improve the analysis by using more years of data, controlling for confounders and comparing changes with the same countries over time to better separate ideology form other country-level differences.
+
+### AI Use
+Used AI to change labels on regression table.
+Used to clean up wording and use technical terminology in write up.
+
+### Code
+```{r print-code, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+
+```
